@@ -1,18 +1,20 @@
 function theta =  stochasticGradientDescent (data, polynomial, alpha)
+    display(['Polynomial: ' num2str(polynomial) ' Alpha: ' num2str(alpha)]);
 
     % initialize
     theta = rand(1,polynomial + 1);
     exponents = [0:polynomial];
     
     [rows, columns] = size(data);
-    threshold = 0.0005;
+    threshold = 0.01;
     update = ones(1,polynomial + 1);
     errors = [];
     
     iteration = 0;
     allUpdates = ones(1,polynomial + 1);
-    while (max(abs(allUpdates)) > threshold)
-        meanError = 0;
+    errorDecrease = 1;
+    while (errorDecrease / alpha > threshold)
+        error = 0;
         allUpdates = zeros(1,polynomial + 1);
         for j = 1:rows
             element = data(j,:);
@@ -22,19 +24,26 @@ function theta =  stochasticGradientDescent (data, polynomial, alpha)
            
             
             h = xnew * theta';
-            meanError = meanError + (h - y).^2;
+            error = error + (h - y).^2;
              
             update = alpha * (y - h) * xnew;
             allUpdates = allUpdates + update;
             theta = theta + update;
 
         end
-        meanError = meanError / rows;
-        display(allUpdates);
+        if iteration > 0
+            errorDecrease = ((errors(end) - error)/errors(end));
+        end
         iteration = iteration + 1;
-        errors = [errors meanError];
+        errors = [errors error];
     end
     figure
-    scatter([1: iteration], errors)
+    plot([1: iteration], errors);
+    title('Error values');
+    xlabel('iteration');
+    ylabel('square error');
+    display(['Converged after ' num2str(iteration) ' iterations.']);
+    display(['Resulting theta: ' mat2str(theta)]);
+    display(['Summed residual square error: ' num2str(errors(end))]); 
 
 end
