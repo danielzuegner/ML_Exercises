@@ -1,6 +1,8 @@
 function [ output_args ] = colorMeanFeatures( img )
 %COLORMEANFEATURES Summary of this function goes here
 %   Detailed explanation goes here
+
+    % compute mean of each channel
     mean_1 = mean(mean(img(:,:,1)));
     mean_2 = mean(mean(img(:,:,2)));
     mean_3 = mean(mean(img(:,:,3)));

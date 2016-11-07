@@ -9,19 +9,20 @@ channel = 1;
 for i = 1:numberOfFiles;
    img = imread(sprintf('positives/p%02d.png',i));
    positives = [positives img];
- %  imshow(img);
 
    y = [y 1];
-   features = colorMeanFeatures(img);
+   features = [gradientFeatures(img) colorMeanFeatures(img)];
+ %  features = [histogramFeatures(img)];
+  
    imageFeatures = [imageFeatures; features];
     
    img2 = imread(sprintf('negatives/n%02d.png',i));
- %  imshow(img2);
 
    negatives = [negatives img2];
-   features2 = colorMeanFeatures(img2);
+   features2 = [gradientFeatures(img2) colorMeanFeatures(img2)];
+ %  features2 = [histogramFeatures(img2)];
 
-   imageFeatures = [imageFeatures; features2];
+   imageFeatures = [imageFeatures; features2 ];
    y = [y 0];
 
 end
@@ -42,6 +43,6 @@ correct2 = 1- abs(classification - y');
 display([F0 F1 correct2]);
 
 figure
-scatter(imageFeatures(y==0,1), imageFeatures(y == 0,3)); hold on;
-scatter(imageFeatures(y==1,1), imageFeatures(y == 1,3)); hold on;
+scatter(imageFeatures(y==0,1), imageFeatures(y == 0,2)); hold on;
+scatter(imageFeatures(y==1,1), imageFeatures(y == 1,2)); hold off;
 
