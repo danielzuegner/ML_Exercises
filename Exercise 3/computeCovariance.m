@@ -1,6 +1,5 @@
 function [ output_args ] = computeCovariance( data, y )
-%COMPUTECOVARIANCE Summary of this function goes here
-%   Detailed explanation goes here
+%COMPUTECOVARIANCE Computes covariance matrix for the data
 
     mean_0 = mean(data(y == 0,:));
     mean_1 = mean(data(y == 1,:));

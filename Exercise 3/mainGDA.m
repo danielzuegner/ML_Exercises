@@ -34,13 +34,14 @@ mean_0 = mean(imageFeatures(y == 0,:));
 mean_1 = mean(imageFeatures(y == 1,:));
 
 % predict probabilities
-F0 = mvnpdf(imageFeatures, mean_0, covariance);
-F1 = mvnpdf(imageFeatures, mean_1, covariance);
+F0 = probabilityMultiNormalDistribution(imageFeatures, mean_0, covariance);
+F1 = probabilityMultiNormalDistribution(imageFeatures, mean_1, covariance);
+2
 % positive or negative example?
 classification = F1 > F0;
-% check if predictions are correct
-correct2 = 1- abs(classification - y');
-display([F0 F1 correct2]);
+% check if predictions are correct; 1 is correctly classified, 0 not
+correct = 1- abs(classification - y');
+display([F0 F1 correct]);
 
 figure
 scatter(imageFeatures(y==0,1), imageFeatures(y == 0,2)); hold on;
