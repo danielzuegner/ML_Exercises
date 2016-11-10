@@ -36,7 +36,7 @@ mean_1 = mean(imageFeatures(y == 1,:));
 % predict probabilities
 F0 = probabilityMultiNormalDistribution(imageFeatures, mean_0, covariance);
 F1 = probabilityMultiNormalDistribution(imageFeatures, mean_1, covariance);
-2
+
 % positive or negative example?
 classification = F1 > F0;
 % check if predictions are correct; 1 is correctly classified, 0 not
