@@ -33,6 +33,9 @@ covariance = computeCovariance(imageFeatures, y);
 mean_0 = mean(imageFeatures(y == 0,:));
 mean_1 = mean(imageFeatures(y == 1,:));
 
+display(mean_0)
+display(mean_1)
+
 % predict probabilities
 F0 = probabilityMultiNormalDistribution(imageFeatures, mean_0, covariance);
 F1 = probabilityMultiNormalDistribution(imageFeatures, mean_1, covariance);
@@ -43,7 +46,11 @@ classification = F1 > F0;
 correct = 1- abs(classification - y');
 display([F0 F1 correct]);
 
+% scattering the gradient features
 figure
 scatter(imageFeatures(y==0,1), imageFeatures(y == 0,2)); hold on;
 scatter(imageFeatures(y==1,1), imageFeatures(y == 1,2)); hold off;
+title('Plotting only the gradient features')
+xlabel('maximum gradient of image')
+ylabel('standard deviation of image gradients')
 
