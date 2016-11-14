@@ -40,11 +40,18 @@ display(mean_1)
 F0 = probabilityMultiNormalDistribution(imageFeatures, mean_0, covariance);
 F1 = probabilityMultiNormalDistribution(imageFeatures, mean_1, covariance);
 
-% positive or negative example?
-classification = F1 > F0;
+posterior_probability_0 = (F0 * 0.5) ./ (F0 * 0.5 + F1 * 0.5);
+posterior_probability_1 = (F1 * 0.5) ./ (F0 * 0.5 + F1 * 0.5);
+
+combinedProbabilities = [posterior_probability_0 posterior_probability_1];
+rowSums = sum(combinedProbabilities, 2);
+[ row_max row_argmax ] = max(combinedProbabilities, [], 2);
+
+% convert to boolean
+classification = row_argmax - 1;
 % check if predictions are correct; 1 is correctly classified, 0 not
 correct = 1- abs(classification - y');
-display([F0 F1 correct]);
+display([posterior_probability_0 posterior_probability_1 correct]);
 
 % scattering the gradient features
 figure
