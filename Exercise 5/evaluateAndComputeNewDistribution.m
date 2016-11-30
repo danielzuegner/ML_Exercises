@@ -2,7 +2,7 @@ function [ epsilon, alpha, distribution ] = evaluateAndComputeNewDistribution( d
     intermediate = data * classifier;
     h = logsig(intermediate);
     prediction = round(h);
-    errors = prediction ~= labels;
+    errors = (prediction ~= labels);
     
     errorsWeighted = errors .* weights;
     
