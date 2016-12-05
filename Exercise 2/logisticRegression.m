@@ -19,6 +19,10 @@ function theta = logisticRegression(data, alpha)
         intermediate = x_mat * theta;
         h = logsig(intermediate); % logsig is the sigmoid function
         diff = (y - h);
+        
+        % weighting
+       % diff = diff .* weights;
+        
         error = diff' * diff;
         update = alpha * diff' * x_mat;
         theta = theta + update';

@@ -1,7 +1,12 @@
 function [ epsilon, alpha, distribution ] = evaluateAndComputeNewDistribution( data, classifier, labels, weights)
-    intermediate = data * classifier;
+    theta = classifier(1:3);
+    flip = classifier(4);
+    intermediate = data * theta;
     h = logsig(intermediate);
     prediction = round(h);
+    if flip == 1
+        prediction = 1 - prediction;
+    end
     errors = (prediction ~= labels);
     
     errorsWeighted = errors .* weights;

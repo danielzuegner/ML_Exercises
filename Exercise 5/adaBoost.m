@@ -1,63 +1,94 @@
 data = load('dataCircle (copy).mat','-ascii');
 logRegAlpha = 0.005;
+dataSubsetCount = 80;
 
-[rows, columns] = size(data);
-y = data(:,3);
+dataSub = data(1:dataSubsetCount,:);
+numbers = 1:dataSubsetCount;
+dataSub = [dataSub numbers'];
+
+[rows, columns] = size(dataSub);
+y = dataSub(:,3);
 
 vec = ones([rows, 1]);
-x_mat = [vec data(:,1:2)];
+x_mat = [vec dataSub(:,1:2)];
 
 
 weights = repmat(1./rows, [rows 1]);
-
-classifiers = zeros(0,3);
+classifiers = zeros(0,4);
 alphas = zeros(0,1);
 
-% free parameter: multiplication factor that indicates how often an entry
-% will be duplicated acccording to the distribution
-dist_mult = 10;
 
+error_vec = zeros(0,1);
+wronglyClassifiedIndices = ones(rows,1);
+for i = 1:500
 
-for i = 1:50
-    % duplicate the misclassified data according to the distribution so
-    % that the logistic regression is forced into classifying this data
-    % correctly.
-    duplicate_assignments = round(weights * rows * dist_mult);
-    data_new = data;
-    for dup = 2:max(duplicate_assignments)
-        data_selection = data(duplicate_assignments == dup, :);
-        for mult = 1:dup
-            data_new = [data_new; data_selection];
-        end
+    % only select data points that were wrongly classified
+    % in the previous iteration
+    data_subset = dataSub(logical(wronglyClassifiedIndices),:);
+    
+    % run logistic regression
+    theta = logisticRegression(data_subset, logRegAlpha);
+    
+    % run classifier on data subset
+    intermediate = data_subset(:,1:3) * theta;
+    h = logsig(intermediate);
+    prediction = round(h);
+    
+    % compute indices of wrong classifications
+    errors = (prediction ~= y(logical(wronglyClassifiedIndices)));
+    
+    % compute accuracy of classifier
+    accuracy = mean(1-errors);
+    flip = 0;
+    if accuracy < 0.5 % if accuracy is <0.5, we flip our classifier
+        flip = 1;
+        errors = 1 - errors;
     end
+    % augment classifier with the 'flip' bit
+    theta = [theta; flip];
     
-    [new_rows, ~] = size(data_new);
-    display(['Added ', int2str(new_rows - rows), ' lines.'])
-    
-    %normalizedWeights = normalize(weights);
-    %theta = logisticRegression(data_new, logRegAlpha)
-    theta = mnrfit(data_new(:, 1:2), data_new(:, 3)+1);
     
     classifiers = [classifiers; theta'];
     [ epsilon, alpha, weights ] = evaluateAndComputeNewDistribution(x_mat, theta, y, weights);
     alphas = [alphas; alpha];
+    
+    % evaluate
+    accuracy = evaluateStrongClassifier(classifiers, x_mat, y, alphas);
+    error_vec = [error_vec; 1 - accuracy];
+    
+    % get 'global' indices of wrong classifications 
+    % i.e. indices in our whole dataset (not just in the subset)
+    errorIndices = data_subset(logical(errors),4);
+    wronglyClassifiedIndices = zeros(rows,1);
+    
+    % only set those indices to 1, which were wrongly
+    % classified in this iteration
+    wronglyClassifiedIndices(errorIndices) = 1;
+    
 end
 
 predictions = zeros(0,1);
 
 for i = 1:size(classifiers)
-   classifier = classifiers(i,:);
-   intermediate = x_mat * classifier';
-   h = logsig(intermediate);
-   prediction = alphas(i) * round(h);
-   predictions = [predictions; prediction];
+    classifier = classifiers(i,:);
+    theta = classifier(1:3);
+    flip = classifier(4);
+    intermediate = x_mat * theta';
+    h = logsig(intermediate);
+    prediction =  sign(h * 2 - 1);
+    if flip == 1
+        prediction = prediction * -1;
+    end
+    weightedPrediction = prediction .* alphas(i);
+    predictions = [predictions weightedPrediction];
 end
-finalClassifications = sign(sum(predictions));
+finalClassifications = sign(sum(predictions,2));
 
 % adjusted labels
 y_adj = y * 2 - 1;
 
 performance = mean(finalClassifications == y_adj);
+display(performance);
 
 
 for i = 1:size(classifiers)
