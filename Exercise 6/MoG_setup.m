@@ -34,7 +34,11 @@ points = [gausspoints_1; gausspoints_2; gausspoints_3];
 n_gaussians = 3;
 [means, covariances] = mixtures_of_gaussians(points, n_gaussians);
 
-
+ezcontour(@(x,y) mvnpdf([x y], means(1, :), covariances(:, :, 1)), xlim(), ylim())
+ezcontour(@(x,y) mvnpdf([x y], means(2, :), covariances(:, :, 2)), xlim(), ylim())
+ezcontour(@(x,y) mvnpdf([x y], means(3, :), covariances(:, :, 3)), xlim(), ylim())
+title('Found gaussian bells')
+xlabel('X_1'), ylabel('X_2')
 
 
 
