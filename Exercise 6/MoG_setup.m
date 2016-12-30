@@ -4,7 +4,7 @@ num = 100;
 
 % parameters of first gaussian
 mean_1 = [10 10];
-cov_1  = [5 4; 4 9];
+cov_1  = [5 4; 4 5];
 % generate points
 gausspoints_1 = mvnrnd(mean_1, cov_1, num);
 

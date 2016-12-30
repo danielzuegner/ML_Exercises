@@ -10,9 +10,19 @@ function [ means, covariances ] = mixtures_of_gaussians( points, n_gaussians )
     
     covariances = ones(dimension, dimension, n_gaussians);
     for gauss = 1:n_gaussians
-       sigma = rand(dimension, dimension);
-       sigma = (sigma*sigma'  - 0.5) * 20;
-       covariances(:,:, gauss) = sigma;
+       while(1)
+           sigma = rand(dimension, dimension);
+           
+           % The below equation A*A' gives only a positive semi-definite matrix
+           sigma = (sigma'*sigma - 0.5) * 20;
+           
+           % Check if all eigenvalues are greater than 0, if so, take that
+           % sigma else compute new one
+           if(all(eig(sigma) > 0))
+               covariances(:,:, gauss) = sigma;
+               break;
+           end
+        end
     end
     
     weights = rand([rows n_gaussians]);
@@ -22,6 +32,7 @@ function [ means, covariances ] = mixtures_of_gaussians( points, n_gaussians )
     
     for k = 1:100
         for i = 1:n_gaussians
+            display(k)
             weights(:, i) = mvnpdf(points, means(i, :), covariances(:, :, i));
             
             % phi update
@@ -33,9 +44,9 @@ function [ means, covariances ] = mixtures_of_gaussians( points, n_gaussians )
             means(i, :) = sum(weights_dim .* points, 1) ./ normalization_factor;
 
             % covariance update
-            weights_dim_dim = repmat(weights(:, i), dimension, dimension);
-            means_dim = repmat(means, rows, 1);
-            cov_update = (weights_dim_dim .* (points - means_dim)' * (points - means_dim)) ./ normalization_factor;
+            %weights_dim_dim = repmat(weights(:, i), dimension, dimension);
+            means_dim = repmat(means(i,:), rows, 1);
+            cov_update = ((weights_dim .* (points - means_dim))' * (points - means_dim)) / normalization_factor(1,1);
             covariances(:, :, i) = cov_update;
         end
     end
