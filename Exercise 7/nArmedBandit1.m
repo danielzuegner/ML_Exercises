@@ -2,7 +2,7 @@ function [ optimalActions, rewards] = nArmedBandit1( n, plays, epsilon )
 %NARMEDBANDIT1 Summary of this function goes here
 %   Detailed explanation goes here
 
-means = zeros([10 1]);
+means = zeros([n 1]);
 for i=1:n
     means(i) = mvnrnd(0, 1, 1);
 end
